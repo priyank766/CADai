@@ -123,7 +123,7 @@ Build a portfolio-worthy, AI-powered 3D CAD platform that demonstrates:
 
 Each of these is a standalone LinkedIn post opportunity:
 
-1. **Phase 1 complete** → "Built a 3D CAD platform with an AI agent — watch it create a coffee mug from a text prompt" (video demo)
-2. **Phase 2 complete** → "Added boolean operations and PBR materials to my AI CAD tool" (before/after screenshots)
-3. **Phase 3 complete** → "Code-CAD meets AI — parametric 3D modeling in the browser" (screen recording)
-4. **Phase 4 complete** → "Full launch: AI-powered CAD platform with generative design" (polished demo video)
+1. **Phase 1 complete** → "Built an agentic 3D CAD platform — watch the AI autonomously model a structural bracket based on engineering specs" (video demo)
+2. **Phase 2 complete** → "Professional B-Rep modeling meets AI — generating parameter-driven mechanical components via CSG operations" (before/after screenshots)
+3. **Phase 3 complete** → "Code-CAD meets AI — parameter-driven engineering components in the browser" (screen recording)
+4. **Phase 4 complete** → "Full launch: AI-powered CAD platform for professional industrial and mechanical engineering, mind-blowing visual quality" (polished demo video)

@@ -9,23 +9,23 @@
 ## Phase 1: Foundation + AI Agent MVP
 
 ### Backend Setup
-- [ ] Initialize Python project with `uv`
-- [ ] Project structure created
-- [ ] FastAPI app running
-- [ ] Gemini client working
-- [ ] Agent engine with tools
-- [ ] API endpoints functional
+- [x] Initialize Python project with `uv`
+- [x] Project structure (routers, services, models)
+- [x] FastAPI app with CORS
+- [x] Google ADK agent setup
+- [x] Agent engine with tools
+- [x] API endpoints functional
 
 ### Frontend Setup
-- [ ] Vite + React initialized
-- [ ] Design system (CSS)
-- [ ] Layout panels
-- [ ] 3D Viewport
-- [ ] Toolbar
-- [ ] Properties panel
-- [ ] Agent panel
-- [ ] Scene state (Zustand)
-- [ ] Undo/Redo
+- [x] Vite + React initialized in `/frontend`
+- [x] Professional CAD Design system (CSS)
+- [x] Layout panels
+- [x] 3D Viewport
+- [x] Toolbar
+- [x] Properties panel
+- [x] Agent panel
+- [x] Scene state (Zustand)
+- [x] Undo/Redo framework
 
 ### Integration
 - [ ] Frontend ↔ Backend connected

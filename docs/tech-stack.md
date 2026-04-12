@@ -47,7 +47,8 @@ Every technology choice is made with three criteria:
 
 | Technology | Purpose | Why |
 |---|---|---|
-| **Google Gemini** | Primary LLM | Free tier available, function calling support, budget-friendly |
+| **Google Agent Development Kit (ADK)** | Agent Orchestration | Code-first Python framework for building agents |
+| **Google Gemini** | Primary LLM | Free tier available, function calling support, used via ADK |
 | **Function Calling** | Agent tools | Native structured output — LLM returns tool calls, not text |
 
 ### LLM Abstraction (Swappable Design)
@@ -55,12 +56,9 @@ Every technology choice is made with three criteria:
 ```
 backend/
   services/
-    llm/
-      __init__.py          # Exports the active client
-      base.py              # Abstract interface (BaseAIClient)
-      gemini_client.py     # Gemini implementation ← ACTIVE
-      openai_client.py     # OpenAI implementation (future)
-      config.py            # API keys, model selection
+    agent/
+      engine.py            # Uses ADK InMemoryRunner
+      tools.py             # Defined Python functions
 ```
 
 To switch providers: change ONE import in `__init__.py`. Everything else stays the same.

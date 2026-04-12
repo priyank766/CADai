@@ -1,4 +1,4 @@
-# System Architecture
+ # System Architecture
 
 ## High-Level Overview
 
@@ -25,22 +25,22 @@ CADai is a three-tier web application with a clear separation between the 3D fro
                                       │ REST / WebSocket
                                       │
 ┌─────────────────────────────────────┴───────────────────────────┐
-│                       BACKEND (FastAPI + Python)                 │
+│                       BACKEND (FastAPI + Python + Google ADK)           │
 │                                                                 │
 │  ┌──────────────┐  ┌──────────────┐  ┌───────────────────────┐  │
-│  │  API Router  │  │  AI Agent    │  │  Project Service      │  │
+│  │  API Router  │  │  ADK Agent   │  │  Project Service      │  │
 │  │  /api/agent  │  │  Engine      │  │  Save/Load/Export     │  │
 │  │  /api/project│  │              │  │                       │  │
 │  │  /api/export │  │  Tools:      │  │  File formats:        │  │
 │  └──────────────┘  │  - create    │  │  - JSON (native)      │  │
 │                     │  - modify    │  │  - STL export         │  │
-│                     │  - analyze   │  │  - GLTF export        │  │
-│                     │  - suggest   │  │  - OBJ export         │  │
+│                     │  - delete    │  │  - GLTF export        │  │
+│                     │  - duplicate │  │  - OBJ export         │  │
 │                     └──────┬───────┘  └───────────────────────┘  │
 │                            │                                     │
 │                     ┌──────┴───────┐                             │
-│                     │  LLM Client  │ ← Swappable (1 file)       │
-│                     │  (Gemini)    │                             │
+│                     │  LLM Backend │ ← Uses Google Gemini        │
+│                     │  via ADK     │                             │
 │                     └──────────────┘                             │
 └──────────────────────────────────────────────────────────────────┘
 ```

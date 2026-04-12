@@ -65,7 +65,7 @@ fastapi
 uvicorn[standard]
 pydantic
 pydantic-settings
-google-genai
+google-adk
 python-multipart
 aiofiles
 ```

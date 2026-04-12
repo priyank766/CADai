@@ -16,7 +16,8 @@ The user sees the 3D viewport update in real-time as the agent works. The agent 
 ```
 ┌─────────────────────────────────────────────┐
 │              USER PROMPT                     │
-│  "Make this look like a coffee mug"         │
+│  "Design a flanged bearing housing          │
+│   with 4x M8 mounting holes"                │
 └──────────────────┬──────────────────────────┘
                    │
                    ▼
@@ -118,24 +119,26 @@ The agent panel is NOT a chat window. It's an **action stream**:
 ┌─ AI Agent ──────────────────────────────┐
 │                                          │
 │  ┌─ Command ───────────────────────────┐ │
-│  │ "Make this look like a coffee mug"  │ │
+│  │ "Design a flanged bearing housing    │ │
+│  │  with 4× M8 mounting holes"          │ │
 │  └─────────────────────────────────────┘ │
 │                                          │
 │  ⚡ Planning actions...                  │
 │                                          │
-│  ✅ Created cylinder (body)              │
-│     → 40mm × 60mm at origin             │
+│  ✅ Created cylinder (housing body)      │
+│     → Ø50mm × 30mm                      │
 │                                          │
-│  ✅ Created torus (handle)               │
-│     → radius 15mm, tube 4mm             │
-│     → positioned at right side           │
+│  ✅ Created cylinder (flange)            │
+│     → Ø80mm × 10mm                      │
 │                                          │
-│  ✅ Boolean subtract (hollow interior)   │
-│     → wall thickness: 3mm               │
+│  ✅ Boolean union (base structure)       │
 │                                          │
-│  ✅ Grouped as "Coffee Mug"             │
+│  ✅ Pattern: 4× M8 holes                 │
+│     → Boolean subtract                  │
 │                                          │
-│  ── 4 actions completed in 2.1s ──       │
+│  ✅ Grouped as "Bearing Housing Assem"   │
+│                                          │
+│  ── 5 actions completed in 2.8s ──       │
 │                                          │
 │  ┌─────────────────────────────────────┐ │
 │  │ What should I build or modify?      │ │
@@ -181,12 +184,12 @@ User's selected object:
 ## Agentic Behaviors (Beyond Simple Prompts)
 
 ### Multi-Step Reasoning
-User says "design a table" → Agent plans:
-1. Create table top (box)
-2. Create 4 legs (cylinders)
-3. Position legs at corners
-4. Group everything
-5. Apply wood material
+User says "design a NEMA 17 stepper motor bracket" → Agent plans:
+1. Create L-bracket base (box geometries)
+2. Create NEMA 17 faceplate hole (Ø22mm cylinder)
+3. Create 4x M3 mounting holes on 31mm bolt circle
+4. Boolean subtract holes from bracket
+5. Apply aluminum brushed material
 
 ### Context Awareness
 User has a box selected, says "add a hole" → Agent:
