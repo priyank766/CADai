@@ -15,8 +15,12 @@ const GROUPS = [
       ['Ctrl+Z', 'Undo'],
       ['Ctrl+Shift+Z / Ctrl+Y', 'Redo'],
       ['Ctrl+D', 'Duplicate selected'],
+      ['Ctrl+C / Ctrl+V', 'Copy / paste selected'],
       ['Delete / Backspace', 'Delete selected'],
       ['Esc', 'Deselect'],
+      ['← → ↑ ↓', 'Nudge selected (snap step)'],
+      ['Shift + arrows', 'Nudge ×10'],
+      ['Alt + ↑ ↓', 'Nudge along Y'],
     ],
   },
   {

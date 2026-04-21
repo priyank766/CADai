@@ -59,6 +59,30 @@ function CursorTracker() {
   return null;
 }
 
+/** Translucent amber plane showing where the clip lies. */
+function SectionHelper({ section }) {
+  const { axis, offset, invert } = section;
+  const rot = axis === 'x'
+    ? [0, 0, Math.PI / 2]
+    : axis === 'z'
+    ? [Math.PI / 2, 0, 0]
+    : [0, 0, 0];
+  const pos = [0, 0, 0];
+  pos[{ x: 0, y: 1, z: 2 }[axis]] = offset;
+  return (
+    <mesh position={pos} rotation={rot}>
+      <planeGeometry args={[40, 40]} />
+      <meshBasicMaterial
+        color="#e59500"
+        opacity={0.12}
+        transparent
+        depthWrite={false}
+        side={2 /* THREE.DoubleSide */}
+      />
+    </mesh>
+  );
+}
+
 function CameraController({ viewRequest, onViewApplied }) {
   const { camera, controls } = useThree();
 
@@ -87,6 +111,7 @@ export default function Viewport() {
   const secondaryId = useSceneStore((s) => s.secondaryId);
   const transformMode = useSceneStore((s) => s.transformMode);
   const selectObject = useSceneStore((s) => s.selectObject);
+  const section = useSceneStore((s) => s.section);
   const viewRef = useRef(null);
   const [, setTick] = useState(0); // bump to notify CameraController
 
@@ -137,7 +162,8 @@ export default function Viewport() {
 
       <Canvas
         camera={{ position: [8, 6, 8], fov: 50, near: 0.1, far: 1000 }}
-        gl={{ antialias: true, alpha: false }}
+        gl={{ antialias: true, alpha: false, localClippingEnabled: true }}
+        onCreated={({ gl }) => { gl.localClippingEnabled = true; }}
         onPointerMissed={() => selectObject(null)}
         style={{ background: '#1a1a1e' }}
       >
@@ -148,6 +174,9 @@ export default function Viewport() {
 
         {/* Environment for reflections */}
         <Environment preset="city" background={false} />
+
+        {/* Origin axes (X=red, Y=green, Z=blue) — always visible at origin */}
+        <primitive object={new THREE.AxesHelper(2)} />
 
         {/* Ground grid */}
         <Grid
@@ -163,6 +192,9 @@ export default function Viewport() {
           fadeStrength={1}
           infiniteGrid
         />
+
+        {/* Section plane helper (translucent disk) */}
+        {section.enabled && <SectionHelper section={section} />}
 
         {/* Scene objects */}
         {objects.map((obj) => (

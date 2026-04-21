@@ -1,6 +1,9 @@
 import { useEffect } from 'react';
 import useSceneStore from '../store/sceneStore';
 
+// Module-level in-memory clipboard. Not persisted; per-tab.
+let clipboard = null;
+
 /**
  * Global keyboard shortcuts. Mirrors the conventions of Blender / Fusion 360.
  *
@@ -34,6 +37,52 @@ export default function useKeyboardShortcuts() {
       if (ctrl && (e.key === 'd' || e.key === 'D')) {
         e.preventDefault();
         if (store.selectedId) store.duplicateObject(store.selectedId);
+        return;
+      }
+
+      if (ctrl && (e.key === 'c' || e.key === 'C')) {
+        const obj = store.objects.find((o) => o.id === store.selectedId);
+        if (obj) {
+          clipboard = {
+            ...obj,
+            position: [...obj.position],
+            rotation: [...obj.rotation],
+            scale: [...obj.scale],
+            dimensions: { ...obj.dimensions },
+            material: { ...obj.material },
+          };
+        }
+        return;
+      }
+      if (ctrl && (e.key === 'v' || e.key === 'V')) {
+        if (clipboard) {
+          e.preventDefault();
+          store.addObject({
+            ...clipboard,
+            id: undefined, // let the store mint a fresh id
+            name: `${clipboard.name} (paste)`,
+            position: [clipboard.position[0] + 2, clipboard.position[1], clipboard.position[2]],
+          });
+        }
+        return;
+      }
+
+      // Arrow-key nudge along world axes (X = left/right, Z = up/down on the grid,
+      // Alt+Up/Down = Y). Uses snap.translate when snap is on, else 1mm. Shift x10.
+      const arrowMap = {
+        ArrowLeft:  [-1, 0, 0],
+        ArrowRight: [ 1, 0, 0],
+        ArrowUp:    [ 0, 0, -1],
+        ArrowDown:  [ 0, 0,  1],
+      };
+      if (arrowMap[e.key] && store.selectedId) {
+        e.preventDefault();
+        const base = store.snap.enabled ? store.snap.translate : 1;
+        const step = base * (e.shiftKey ? 10 : 1);
+        let [dx, dy, dz] = arrowMap[e.key];
+        if (e.altKey) { dy = -dz; dz = 0; } // Alt swaps Z-axis keys to Y
+        store.nudgeObject(store.selectedId, [dx * step, dy * step, dz * step]);
+        store.commitHistory();
         return;
       }
 

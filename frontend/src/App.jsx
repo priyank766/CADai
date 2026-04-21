@@ -6,6 +6,7 @@ import ObjectTree from './components/ObjectTree/ObjectTree';
 import AgentPanel from './components/AgentPanel/AgentPanel';
 import CommandPalette from './components/CommandPalette/CommandPalette';
 import BooleanBar from './components/BooleanBar/BooleanBar';
+import SectionBar from './components/SectionBar/SectionBar';
 import ShortcutsOverlay from './components/ShortcutsOverlay/ShortcutsOverlay';
 import StatusBar from './components/StatusBar/StatusBar';
 import useSceneStore from './store/sceneStore';
@@ -86,6 +87,10 @@ function App() {
 
         <div style={{ marginLeft: 'var(--space-3)' }}>
           <BooleanBar />
+        </div>
+
+        <div style={{ marginLeft: 'var(--space-3)' }}>
+          <SectionBar />
         </div>
 
         <div className="transform-modes" style={{ marginLeft: 'var(--space-3)' }}>

@@ -71,6 +71,10 @@
 - [x] Named camera views (Top / Front / Right / Iso) snap buttons in viewport
 - [x] Linear array tool (count / spacing / axis) in PropertyPanel
 - [x] Circular / polar array tool (count / sweep angle / axis) — bolt circles
+- [x] Mirror tool (YZ / XZ / XY planes)
+- [x] Arrow-key nudge with snap-step granularity; Shift ×10; Alt → Y axis
+- [x] Section / cross-section clip plane (X/Y/Z axis, offset slider, flip); reveals CSG interiors
+- [x] Always-visible origin axes helper (red=X, green=Y, blue=Z)
 - [x] Status bar: cursor world coords (mm), mode, snap, units, object count, live FPS
 - [ ] Split viewport (top/front/side/perspective)
 
@@ -98,6 +102,10 @@
 | 2026-04-21 | Linear array tool: duplicate N copies along X/Y/Z at specified spacing; one undo entry. |
 | 2026-04-21 | Circular/polar array tool: N copies around origin, sweep 1–360°, with per-copy orientation rotation (bolt-circle behavior). |
 | 2026-04-21 | Bottom StatusBar: cursor-on-ground world coords (raycast), FPS sampler, mode/snap/units/count readouts. |
+| 2026-04-21 | Mirror tool (YZ/XZ/XY planes) reflects position + flips scale axis. |
+| 2026-04-21 | Arrow-key nudge (X/Z by default, Alt for Y), step = snap.translate or 1mm; Shift = ×10. |
+| 2026-04-21 | Section view: per-material clipping plane (axis + offset + invert), translucent amber plane helper, DoubleSide on cut materials. |
+| 2026-04-21 | Origin axes helper (Three.js AxesHelper) always-visible at world origin. |
 
 ---
 

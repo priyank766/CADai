@@ -52,6 +52,7 @@ const useSceneStore = create((set, get) => {
     secondaryId: null, // used to pair a second object for CSG / measure ops
     transformMode: 'translate', // 'translate' | 'rotate' | 'scale'
     snap: { enabled: false, translate: 1, rotate: 15, scale: 0.1 }, // deg for rotate
+    section: { enabled: false, axis: 'x', offset: 0, invert: false },
 
     agentActions: [],
     agentLoading: false,
@@ -195,6 +196,108 @@ const useSceneStore = create((set, get) => {
       return { ...nextState, ...pushHistory(nextState) };
     }),
 
+    /**
+     * Mirror an object across a world-space plane through the origin with the
+     * given normal axis ('x'|'y'|'z'). Creates a new object and keeps the
+     * original. Reflects position component and flips the corresponding scale
+     * axis so transform gizmos stay well-formed.
+     */
+    mirrorObject: (id, axis = 'x') => set((state) => {
+      const source = state.objects.find((o) => o.id === id);
+      if (!source) return state;
+      const axisIdx = { x: 0, y: 1, z: 2 }[axis] ?? 0;
+
+      const pos = [...source.position];
+      pos[axisIdx] = -pos[axisIdx];
+      const scale = [...source.scale];
+      scale[axisIdx] = -scale[axisIdx];
+
+      const newObj = {
+        ...source,
+        id: `obj_${Date.now().toString(36)}_m`,
+        name: `${source.name} (mirror ${axis.toUpperCase()})`,
+        position: pos,
+        rotation: [...source.rotation],
+        scale,
+        dimensions: { ...source.dimensions },
+        material: { ...source.material },
+      };
+      const nextState = { ...state, objects: [...state.objects, newObj], selectedId: newObj.id };
+      return { ...nextState, ...pushHistory(nextState) };
+    }),
+
+    /**
+     * Align object `movingId` to object `refId` along `axis` at `mode`.
+     *   mode: 'min' | 'center' | 'max'
+     * Uses inspectObject-style bbox math inline to avoid a circular import.
+     * Translates moving object so the chosen edge/center matches the reference's.
+     */
+    alignObjects: (movingId, refId, axis, mode) => set((state) => {
+      const moving = state.objects.find((o) => o.id === movingId);
+      const ref = state.objects.find((o) => o.id === refId);
+      if (!moving || !ref) return state;
+
+      // AABB approximation from dimensions + scale + position (works for primitives
+      // and 'mesh' objects because their geometry is already world-space baked).
+      const bbox = (o) => {
+        const d = o.dimensions || {};
+        let w = 1, h = 1, dp = 1;
+        switch (o.type) {
+          case 'box':      w = d.width ?? 1; h = d.height ?? 1; dp = d.depth ?? 1; break;
+          case 'sphere':   w = h = dp = 2 * (d.radius ?? 1); break;
+          case 'cylinder': w = dp = 2 * Math.max(d.radiusTop ?? d.radius ?? 1, d.radiusBottom ?? d.radius ?? 1); h = d.height ?? 1; break;
+          case 'cone':     w = dp = 2 * (d.radiusBottom ?? d.radius ?? 1); h = d.height ?? 1; break;
+          case 'torus':    w = dp = 2 * ((d.radius ?? 1) + (d.tube ?? 0.3)); h = 2 * (d.tube ?? 0.3); break;
+          case 'plane':    w = d.width ?? 1; h = 0.001; dp = d.height ?? 1; break;
+          case 'mesh':
+            if (o._geometry) {
+              o._geometry.computeBoundingBox();
+              const bb = o._geometry.boundingBox;
+              return { min: bb.min.toArray(), max: bb.max.toArray() }; // already world-space
+            }
+            break;
+        }
+        const sx = Math.abs(o.scale[0]) * w / 2;
+        const sy = Math.abs(o.scale[1]) * h / 2;
+        const sz = Math.abs(o.scale[2]) * dp / 2;
+        return {
+          min: [o.position[0] - sx, o.position[1] - sy, o.position[2] - sz],
+          max: [o.position[0] + sx, o.position[1] + sy, o.position[2] + sz],
+        };
+      };
+
+      const axisIdx = { x: 0, y: 1, z: 2 }[axis] ?? 0;
+      const bm = bbox(moving);
+      const br = bbox(ref);
+
+      let target;
+      if (mode === 'min') target = br.min[axisIdx] + (bm.max[axisIdx] - bm.min[axisIdx]) / 2;
+      else if (mode === 'max') target = br.max[axisIdx] - (bm.max[axisIdx] - bm.min[axisIdx]) / 2;
+      else target = (br.min[axisIdx] + br.max[axisIdx]) / 2;
+
+      const currentCenter = (bm.min[axisIdx] + bm.max[axisIdx]) / 2;
+      const delta = target - currentCenter;
+
+      const newPos = [...moving.position];
+      newPos[axisIdx] += delta;
+      const nextState = {
+        ...state,
+        objects: state.objects.map((o) => o.id === movingId ? { ...o, position: newPos } : o),
+      };
+      return { ...nextState, ...pushHistory(nextState) };
+    }),
+
+    /** Nudge selected object by a world-space delta; no history entry per step. */
+    nudgeObject: (id, delta) => set((state) => ({
+      objects: state.objects.map((o) => {
+        if (o.id !== id) return o;
+        return {
+          ...o,
+          position: [o.position[0] + delta[0], o.position[1] + delta[1], o.position[2] + delta[2]],
+        };
+      }),
+    })),
+
     duplicateObject: (id, offset = [2, 0, 0], newName = null, newId = null) => set((state) => {
       const source = state.objects.find((obj) => obj.id === id);
       if (!source) return state;
@@ -239,6 +342,9 @@ const useSceneStore = create((set, get) => {
 
     toggleSnap: () => set((state) => ({ snap: { ...state.snap, enabled: !state.snap.enabled } })),
     setSnapValues: (partial) => set((state) => ({ snap: { ...state.snap, ...partial } })),
+
+    toggleSection: () => set((state) => ({ section: { ...state.section, enabled: !state.section.enabled } })),
+    setSection: (partial) => set((state) => ({ section: { ...state.section, ...partial } })),
 
     clearScene: () => set((state) => {
       const nextState = { ...state, objects: [], selectedId: null, agentActions: [] };

@@ -1,4 +1,5 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useMemo } from 'react';
+import * as THREE from 'three';
 import { TransformControls } from '@react-three/drei';
 import useSceneStore from '../../store/sceneStore';
 
@@ -12,6 +13,19 @@ export default function SceneObject({ data, isSelected, isSecondary, transformMo
   const updateObject = useSceneStore((s) => s.updateObject);
   const commitHistory = useSceneStore((s) => s.commitHistory);
   const snap = useSceneStore((s) => s.snap);
+  const section = useSceneStore((s) => s.section);
+
+  // Build a clipping plane from the store's section settings. The plane keeps
+  // the half-space on the positive-normal side; `invert` flips which side shows.
+  const clippingPlanes = useMemo(() => {
+    if (!section.enabled) return [];
+    const n = { x: [1, 0, 0], y: [0, 1, 0], z: [0, 0, 1] }[section.axis];
+    const sign = section.invert ? -1 : 1;
+    const normal = new THREE.Vector3(n[0] * sign, n[1] * sign, n[2] * sign);
+    // plane equation: normal·x + constant = 0; we want x_axis >= offset (or <= if inverted)
+    const constant = -section.offset * sign;
+    return [new THREE.Plane(normal, constant)];
+  }, [section.enabled, section.axis, section.offset, section.invert]);
 
   const { type, position, rotation, scale, dimensions, material, visible } = data;
 
@@ -49,6 +63,8 @@ export default function SceneObject({ data, isSelected, isSecondary, transformMo
           roughness={material.roughness || 0.5}
           opacity={material.opacity || 1}
           transparent={material.opacity < 1}
+          clippingPlanes={clippingPlanes}
+          side={clippingPlanes.length > 0 ? 2 /* DoubleSide shows the cut interior */ : 0}
         />
         {/* Selection outline (primary = amber, secondary = blue) */}
         {outlineColor && meshRef.current?.geometry && (

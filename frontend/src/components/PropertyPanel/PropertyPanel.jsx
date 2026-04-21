@@ -21,6 +21,8 @@ export default function PropertyPanel() {
   const updateObject = useSceneStore((s) => s.updateObject);
   const linearArray = useSceneStore((s) => s.linearArray);
   const circularArray = useSceneStore((s) => s.circularArray);
+  const mirrorObject = useSceneStore((s) => s.mirrorObject);
+  const alignObjects = useSceneStore((s) => s.alignObjects);
 
   const selectedObj = objects.find((o) => o.id === selectedId);
   const secondaryObj = objects.find((o) => o.id === secondaryId);
@@ -208,8 +210,14 @@ export default function PropertyPanel() {
 
         <InspectReadout obj={selectedObj} />
         {secondaryObj && <CompareReadout a={selectedObj} b={secondaryObj} />}
+        {secondaryObj && (
+          <AlignTool
+            onAlign={(axis, mode) => alignObjects(secondaryId, selectedId, axis, mode)}
+          />
+        )}
         <ArrayTool onApply={(count, spacing, axis) => linearArray(selectedId, count, spacing, axis)} />
         <CircularArrayTool onApply={(count, angle, axis) => circularArray(selectedId, count, angle, axis)} />
+        <MirrorTool onApply={(axis) => mirrorObject(selectedId, axis)} />
       </div>
     </div>
   );
@@ -362,6 +370,75 @@ function ArrayTool({ onApply }) {
           >
             Apply array ({count - 1} copies)
           </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AlignTool({ onAlign }) {
+  return (
+    <div style={{ marginTop: 'var(--space-3)', borderTop: '1px solid var(--border, #333)', paddingTop: 'var(--space-2)' }}>
+      <div style={{ fontSize: 10, letterSpacing: 0.8, textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 4 }}>
+        Align B → A
+      </div>
+      {['x', 'y', 'z'].map((a) => (
+        <div className="prop-row" key={a}>
+          <span className="prop-row__label" style={{ textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>{a}</span>
+          <div className="prop-row__value" style={{ gap: 4 }}>
+            {[
+              ['min', 'Min'],
+              ['center', 'Mid'],
+              ['max', 'Max'],
+            ].map(([mode, label]) => (
+              <button
+                key={mode}
+                onClick={() => onAlign(a, mode)}
+                style={{
+                  flex: 1, padding: '3px 0',
+                  background: 'var(--surface-2, #2a2a2e)',
+                  color: 'var(--text-primary)',
+                  border: '1px solid var(--border, #333)',
+                  borderRadius: 3, cursor: 'pointer',
+                  fontFamily: 'var(--font-mono)', fontSize: 11,
+                }}
+              >{label}</button>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function MirrorTool({ onApply }) {
+  return (
+    <div style={{ marginTop: 'var(--space-3)', borderTop: '1px solid var(--border, #333)', paddingTop: 'var(--space-2)' }}>
+      <div style={{ fontSize: 10, letterSpacing: 0.8, textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 4 }}>
+        Mirror
+      </div>
+      <div className="prop-row">
+        <span className="prop-row__label">Plane</span>
+        <div className="prop-row__value" style={{ gap: 4 }}>
+          {[
+            ['x', 'YZ'],
+            ['y', 'XZ'],
+            ['z', 'XY'],
+          ].map(([axis, label]) => (
+            <button
+              key={axis}
+              onClick={() => onApply(axis)}
+              title={`Mirror across ${label} plane (normal = ${axis.toUpperCase()})`}
+              style={{
+                flex: 1, padding: '4px 0',
+                background: 'var(--surface-2, #2a2a2e)',
+                color: 'var(--text-primary)',
+                border: '1px solid var(--border, #333)',
+                borderRadius: 3, cursor: 'pointer',
+                fontFamily: 'var(--font-mono)', fontSize: 11,
+              }}
+            >{label}</button>
+          ))}
         </div>
       </div>
     </div>
