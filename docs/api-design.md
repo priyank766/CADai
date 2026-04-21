@@ -7,7 +7,7 @@
 ## Base URL
 
 ```
-Development: http://localhost:8000/api
+Development: http://localhost:8001/api  (default; override via frontend VITE_API_URL)
 ```
 
 ---

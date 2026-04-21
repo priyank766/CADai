@@ -6,10 +6,12 @@ import useSceneStore from '../../store/sceneStore';
  * Renders a single scene object based on its type and properties.
  * Handles selection, transform gizmos, and material.
  */
-export default function SceneObject({ data, isSelected, transformMode }) {
+export default function SceneObject({ data, isSelected, isSecondary, transformMode }) {
   const meshRef = useRef();
   const selectObject = useSceneStore((s) => s.selectObject);
   const updateObject = useSceneStore((s) => s.updateObject);
+  const commitHistory = useSceneStore((s) => s.commitHistory);
+  const snap = useSceneStore((s) => s.snap);
 
   const { type, position, rotation, scale, dimensions, material, visible } = data;
 
@@ -17,12 +19,17 @@ export default function SceneObject({ data, isSelected, transformMode }) {
 
   const handleClick = (e) => {
     e.stopPropagation();
-    selectObject(data.id);
+    const additive = e.shiftKey || e.nativeEvent?.shiftKey;
+    selectObject(data.id, { additive });
   };
 
-  // Build geometry based on type
-  const geometry = getGeometry(type, dimensions);
+  // Build geometry based on type ('mesh' reuses pre-baked BufferGeometry from CSG)
+  const geometry = type === 'mesh' && data._geometry
+    ? <primitive object={data._geometry} attach="geometry" />
+    : getGeometry(type, dimensions);
   if (!geometry) return null;
+
+  const outlineColor = isSelected ? '#e59500' : isSecondary ? '#3aa3ff' : null;
 
   return (
     <>
@@ -43,11 +50,11 @@ export default function SceneObject({ data, isSelected, transformMode }) {
           opacity={material.opacity || 1}
           transparent={material.opacity < 1}
         />
-        {/* Selection outline */}
-        {isSelected && (
+        {/* Selection outline (primary = amber, secondary = blue) */}
+        {outlineColor && meshRef.current?.geometry && (
           <lineSegments>
-            <edgesGeometry args={[meshRef.current?.geometry]} />
-            <lineBasicMaterial color="#e59500" linewidth={1} />
+            <edgesGeometry args={[meshRef.current.geometry]} />
+            <lineBasicMaterial color={outlineColor} linewidth={1} />
           </lineSegments>
         )}
       </mesh>
@@ -58,6 +65,10 @@ export default function SceneObject({ data, isSelected, transformMode }) {
           object={meshRef.current}
           mode={transformMode}
           size={0.6}
+          translationSnap={snap.enabled ? snap.translate : null}
+          rotationSnap={snap.enabled ? (snap.rotate * Math.PI) / 180 : null}
+          scaleSnap={snap.enabled ? snap.scale : null}
+          onMouseUp={() => commitHistory()}
           onObjectChange={() => {
             if (meshRef.current) {
               const pos = meshRef.current.position;

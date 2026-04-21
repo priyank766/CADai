@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import logging
 import json
+import os
 from google.adk.agents import Agent
 from google.adk.runners import InMemoryRunner
 from google.genai import types
@@ -19,6 +20,10 @@ from src.services.agent.tools import ALL_TOOLS
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
+
+# ADK reads GOOGLE_API_KEY from env — bridge from our config
+if settings.gemini_api_key and not os.environ.get("GOOGLE_API_KEY"):
+    os.environ["GOOGLE_API_KEY"] = settings.gemini_api_key
 
 # System prompt -- instructs the model to act as a CAD agent, not a chatbot
 SYSTEM_INSTRUCTION = """You are CADai Agent, an AI that designs 3D models by executing tool calls.
@@ -90,6 +95,19 @@ runner = InMemoryRunner(agent=cad_agent, app_name="cadai")
 # Persistent user/session for now (single user dev mode)
 USER_ID = "dev_user"
 SESSION_ID = "dev_session"
+_session_created = False
+
+
+async def _ensure_session():
+    """Create the dev session if it doesn't exist yet."""
+    global _session_created
+    if not _session_created:
+        await runner.session_service.create_session(
+            app_name="cadai",
+            user_id=USER_ID,
+            session_id=SESSION_ID,
+        )
+        _session_created = True
 
 
 async def execute_agent_action(prompt: str, scene_state: dict) -> dict:
@@ -104,6 +122,8 @@ async def execute_agent_action(prompt: str, scene_state: dict) -> dict:
         dict with 'success', 'actions', 'agent_summary', and optional 'error'.
     """
     try:
+        await _ensure_session()
+
         # Build context-enriched prompt
         context = _build_scene_context(scene_state)
         full_prompt = f"{context}\n\nUser request: {prompt}"
