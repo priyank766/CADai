@@ -12,16 +12,9 @@ class AgentActionRequest(BaseModel):
     scene_state: SceneState
 
 
-class ToolCall(BaseModel):
-    """A single tool call returned by the AI agent."""
-    tool: str
-    args: dict[str, Any]
-    description: str = ""
-
-
 class AgentActionResponse(BaseModel):
     """Response from the AI agent with executable actions."""
     success: bool = True
-    actions: list[ToolCall] = []
+    actions: list[dict[str, Any]] = []
     agent_summary: str = ""
     error: Optional[str] = None

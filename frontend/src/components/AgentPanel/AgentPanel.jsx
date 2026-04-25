@@ -117,7 +117,22 @@ export default function AgentPanel() {
         {agentLoading && (
           <div className="agent-action">
             <span className="agent-action__icon agent-action__icon--pending">&#9881;</span>
-            <span className="agent-action__text">Planning actions...</span>
+            <span className="agent-action__text">
+              {(() => {
+                const messages = [
+                  "Consulting the sacred geometry...",
+                  "Asking the AI architects...",
+                  "Forging digital matter...",
+                  "Calibrating the 3D printer in my mind...",
+                  "Drafting blueprints in the 4th dimension...",
+                  "Bending polygons to my will...",
+                  "Measuring twice, cutting once...",
+                  "Sprinkling vertices with magic dust...",
+                ];
+                // Using a simple time-based pseudo-random selection so it changes every time it loads
+                return messages[Math.floor(Date.now() / 1000) % messages.length];
+              })()}
+            </span>
           </div>
         )}
         <div ref={actionsEndRef} />

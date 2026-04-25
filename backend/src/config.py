@@ -17,7 +17,11 @@ class Settings(BaseSettings):
 
     # Gemini
     gemini_api_key: str = ""
-    gemini_model: str = "gemini-2.0-flash"
+    gemini_model: str = "gemini-2.5-flash-lite"
+
+    # OpenRouter
+    openrouter_api_key: str = ""
+    openrouter_model: str = "openai/gpt-oss-120b:free"
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 

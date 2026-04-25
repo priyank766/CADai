@@ -36,4 +36,7 @@ app.include_router(agent.router, prefix="/api/agent", tags=["agent"])
 async def startup():
     logger.info(f"{settings.app_name} v{settings.app_version} starting...")
     logger.info(f"CORS allowed: {settings.frontend_url}")
-    logger.info(f"LLM model: {settings.gemini_model}")
+    if settings.openrouter_api_key:
+        logger.info(f"LLM model: {settings.openrouter_model} (via OpenRouter)")
+    else:
+        logger.info(f"LLM model: {settings.gemini_model}")

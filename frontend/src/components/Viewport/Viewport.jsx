@@ -161,7 +161,7 @@ export default function Viewport() {
       </div>
 
       <Canvas
-        camera={{ position: [8, 6, 8], fov: 50, near: 0.1, far: 1000 }}
+        camera={{ position: [8, 6, 8], fov: 50, near: 0.1, far: 50000 }}
         gl={{ antialias: true, alpha: false, localClippingEnabled: true }}
         onCreated={({ gl }) => { gl.localClippingEnabled = true; }}
         onPointerMissed={() => selectObject(null)}
@@ -188,7 +188,7 @@ export default function Viewport() {
           sectionSize={5}
           sectionThickness={1}
           sectionColor="#3a3a3e"
-          fadeDistance={30}
+          fadeDistance={1000}
           fadeStrength={1}
           infiniteGrid
         />
@@ -212,8 +212,8 @@ export default function Viewport() {
           makeDefault
           enableDamping
           dampingFactor={0.1}
-          minDistance={2}
-          maxDistance={100}
+          minDistance={1}
+          maxDistance={50000}
         />
 
         {/* View gizmo in the corner */}

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import useSceneStore from '../../store/sceneStore';
 import { exportScene } from '../../services/exporter';
 import { saveProject, pickProjectFile } from '../../services/project';
+import { pickAndImportSTL } from '../../services/importer';
 
 /**
  * Command palette -- Ctrl+K / Cmd+K launcher.
@@ -64,6 +65,11 @@ function buildCommands(store, close) {
       run: async () => {
         const loaded = await pickProjectFile().catch((err) => { alert(err.message); return null; });
         if (loaded) loadObjects(loaded);
+      } },
+    { id: 'import-stl', label: 'Import STL', group: 'File',
+      run: async () => {
+        const obj = await pickAndImportSTL().catch((err) => { alert(err.message); return null; });
+        if (obj) addObject(obj);
       } },
     { id: 'export-stl', label: 'Export STL', group: 'File',
       disabled: objects.length === 0, run: () => exportScene(objects, 'stl') },

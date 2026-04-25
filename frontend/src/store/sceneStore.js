@@ -76,6 +76,7 @@ const useSceneStore = create((set, get) => {
         material: obj.material || { ...DEFAULT_MATERIALS.default },
         visible: obj.visible !== undefined ? obj.visible : true,
         locked: obj.locked || false,
+        _geometry: obj._geometry,
       };
       const nextState = { ...state, objects: [...state.objects, newObj], selectedId: id };
       return { ...nextState, ...pushHistory(nextState) };

@@ -12,6 +12,7 @@ import logging
 import json
 import os
 from google.adk.agents import Agent
+from google.adk.models.lite_llm import LiteLlm
 from google.adk.runners import InMemoryRunner
 from google.genai import types
 
@@ -84,7 +85,11 @@ def _build_scene_context(scene_state: dict) -> str:
 # Build the ADK Agent
 cad_agent = Agent(
     name="cad_agent",
-    model=settings.gemini_model,
+    model=LiteLlm(
+        model=settings.openrouter_model,
+        api_key=settings.openrouter_api_key,
+        api_base="https://openrouter.ai/api/v1"
+    ) if settings.openrouter_api_key else settings.gemini_model,
     instruction=SYSTEM_INSTRUCTION,
     tools=ALL_TOOLS,
 )

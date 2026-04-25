@@ -14,6 +14,7 @@ import useKeyboardShortcuts from './hooks/useKeyboardShortcuts';
 import { checkHealth } from './services/api';
 import { exportScene } from './services/exporter';
 import { saveProject, pickProjectFile } from './services/project';
+import { pickAndImportSTL } from './services/importer';
 
 function App() {
   const setTransformMode = useSceneStore((s) => s.setTransformMode);
@@ -24,6 +25,7 @@ function App() {
   const history = useSceneStore((s) => s.history);
   const objects = useSceneStore((s) => s.objects);
   const loadObjects = useSceneStore((s) => s.loadObjects);
+  const addObject = useSceneStore((s) => s.addObject);
   const snap = useSceneStore((s) => s.snap);
   const toggleSnap = useSceneStore((s) => s.toggleSnap);
   const [exportOpen, setExportOpen] = useState(false);
@@ -51,6 +53,15 @@ function App() {
     try {
       const loaded = await pickProjectFile();
       if (loaded) loadObjects(loaded);
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  const handleImportSTL = async () => {
+    try {
+      const obj = await pickAndImportSTL();
+      if (obj) addObject(obj);
     } catch (err) {
       alert(err.message);
     }
@@ -125,6 +136,9 @@ function App() {
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 'var(--space-2)', position: 'relative' }}>
           <button className="transform-modes__btn" onClick={handleLoad} title="Load project">
             Load
+          </button>
+          <button className="transform-modes__btn" onClick={handleImportSTL} title="Import STL model">
+            Import STL
           </button>
           <button
             className="transform-modes__btn"

@@ -114,5 +114,4 @@
 | Date | Note |
 |---|---|
 | 2026-04-12 | Project initialized. Docs created. Ready to start Phase 1. |
-| 2026-04-21 | Port 8000 in use on dev machine → backend now runs on 8001 by default. Frontend `API_BASE` follows suit. |
 | 2026-04-21 | `backend/.env` still contains placeholder `GEMINI_API_KEY` — must be set to a real key before the agent flow works end-to-end. |
